@@ -1,85 +1,51 @@
+import io
+
 from rembg import remove
 from PIL import Image
 from pathlib import Path, PureWindowsPath
 import PySimpleGUI as sg
 import os.path
 
-# First the window layout in 2 columns
-
-file_list_column = [
-    [
-        sg.Text("Image Folder"),
-        sg.In(size=(25, 1), enable_events=True, key="-FOLDER-"),
-        sg.FolderBrowse(),
-    ],
-    [
-        sg.Listbox(
-            values=[], enable_events=True, size=(40, 20), key="-FILE LIST-"
-        )
-    ],
+file_types = [
+    ("All files (*.*)", "*.*")
 ]
 
-# For now will only show the name of the file that was chosen
-image_viewer_column = [
-    [sg.Text("Choose an image from list on left:")],
-    [sg.Text(size=(40, 1), key="-TOUT-")],
-    [sg.Image(key="-IMAGE-")],
-]
-
-# ----- Full layout -----
 layout = [
+    [sg.Image(key="-IMAGE-")],
+    [sg.Image(key="-IMAGEREMOVED-")],
+    [sg.Text(key="-FILENAME-")],
     [
-        sg.Column(file_list_column),
-        sg.VSeperator(),
-        sg.Column(image_viewer_column),
+        sg.Text("Image File"),
+        sg.Input(size=(25, 1), key="-FILE-"),
+        sg.FileBrowse(file_types=file_types),
+        sg.Button("Load Image")
     ]
 ]
 
-window = sg.Window("Image Viewer", layout)
+window = sg.Window("Image viewer", layout)
 
 while True:
     event, values = window.read()
     if event == "Exit" or event == sg.WIN_CLOSED:
         break
+    if event == "Load Image":
+        filename = values["-FILE-"]
+        if os.path.exists(filename):
+            image = Image.open(values["-FILE-"])
+            image.thumbnail((400, 400))
+            bio = io.BytesIO()
+            image.save(bio, format="PNG")
+            window["-IMAGE-"].update(data=bio.getvalue())
+            window["-FILENAME-"].update(filename)
 
-# Folder name was filled in, make a list of files in the folder
-if event == "-FOLDER-":
-    folder = values["-FOLDER-"]
-    try:
-        # Get list of files in folder
-        file_list = os.listdir(folder)
-    except:
-        file_list = []
 
-    fnames = [
-        f
-        for f in file_list
-        if os.path.isfile(os.path.join(folder, f))
-        and f.lower().endswith((".png", ".gif"))
-    ]
-    window["-FILE LIST-"].update(fnames)
 
-elif event == "-FILE LIST-":  # A file was chosen from the listbox
-    try:
-        filename = os.path.join(
-            values["-FOLDER-"], values["-FILE LIST-"][0]
-        )
-        window["-TOUT-"].update(filename)
-        window["-IMAGE-"].update(filename=filename)
-    except:
-        pass
+
 
 window.close()
 
-# inputName = R"C:\Users\1Thom\Pictures\P1100432.png"
-# input_path = Path(inputName)
-
-# if '.jpg' or '.JPG' in input_path:
-#     im1 = Image.open(input_path)
-#     im1.save('inputPhoto/newPhoto.png')
-
-
-# output_path = 'inputPhoto'
-# inputForProgram = Image.open(input_path)
-# output = remove(inputForProgram)
-# output.save(output_path)
+# input_path = Path("inputPhoto/konijn.png")
+#             output_path = 'output'
+#             inputForProgram = Image.open(input_path)
+#             output = remove(inputForProgram)
+#             output.save(output_path)
