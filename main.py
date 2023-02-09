@@ -12,8 +12,9 @@ file_types = [
 
 layout = [
     [sg.Image(key="-IMAGE-")],
-    [sg.Image(key="-IMAGEREMOVED-")],
     [sg.Text(key="-FILENAME-")],
+    [sg.Image(key="-IMAGEREMOVED-")],
+
     [
         sg.Text("Image File"),
         sg.Input(size=(25, 1), key="-FILE-"),
@@ -36,16 +37,19 @@ while True:
             bio = io.BytesIO()
             image.save(bio, format="PNG")
             window["-IMAGE-"].update(data=bio.getvalue())
+
             window["-FILENAME-"].update(filename)
 
+            input_path = Path(filename)
+            output_path = 'output/output.png'
+            inputForProgram = Image.open(input_path)
+            output = remove(inputForProgram)
+            output.save(output_path)
 
-
-
+            imageOutput = Image.open(output_path)
+            imageOutput.thumbnail((400, 400))
+            bioOutput = io.BytesIO()
+            imageOutput.save(bioOutput, format="PNG")
+            window["-IMAGEREMOVED-"].update(bioOutput.getvalue())
 
 window.close()
-
-# input_path = Path("inputPhoto/konijn.png")
-#             output_path = 'output'
-#             inputForProgram = Image.open(input_path)
-#             output = remove(inputForProgram)
-#             output.save(output_path)
