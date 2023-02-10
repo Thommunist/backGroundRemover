@@ -25,7 +25,7 @@ layout = [
     ],
 
     [
-        sg.Text("Make sure filename.png is behind the folder location."),
+        sg.Text("Make sure <filename>.png is behind the folder location."),
     ],
 
     [
@@ -65,10 +65,9 @@ while True:
 
             if foldername != "":
                 if not (".png" or ".PNG") in foldername:
-                    output_path = foldername + "/newImage.png"
+                    output_path = "output/output.png"
                 else:
                     output_path = foldername
-
             else:
                 output_path = "output/output.png"
 
