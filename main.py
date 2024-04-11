@@ -1,10 +1,9 @@
 import io
-
+import os
 from rembg import remove
 from PIL import Image
-from pathlib import Path, PureWindowsPath
+from pathlib import Path
 import PySimpleGUI as sg
-import os.path
 
 file_types = [
     ("All files (*.*)", "*.*")
@@ -29,7 +28,7 @@ layout = [
     ],
 
     [
-        sg.Text("Default location at ouput/ouput.png")
+        sg.Text("Default location at output/output.png")
     ],
 
     [
@@ -53,25 +52,25 @@ while True:
         filename = values["-FILE-"]
         foldername = values["-NEWLOCATION-"]
         if os.path.exists(filename):
-            image = Image.open(values["-FILE-"])
+            image = Image.open(filename)
             image.thumbnail((400, 400))
             bio = io.BytesIO()
             image.save(bio, format="PNG")
             window["-IMAGE-"].update(data=bio.getvalue())
 
-            window["-FILENAME-"].update("Input path" + filename)
-
-            input_path = Path(filename)
+            window["-FILENAME-"].update("Input path: " + filename)
 
             if foldername != "":
-                if not (".png" or ".PNG") in foldername:
-                    output_path = "output/output.png"
-                else:
-                    output_path = foldername
+                # Ensure the output path ends with a slash
+                if not foldername.endswith(os.sep):
+                    foldername += os.sep
+                # Construct the output file name
+                output_filename = os.path.basename(filename).rsplit('.', 1)[0] + ".png"
+                output_path = foldername + output_filename
             else:
                 output_path = "output/output.png"
 
-            inputForProgram = Image.open(input_path)
+            inputForProgram = Image.open(filename)
             output = remove(inputForProgram)
             output.save(output_path)
 
